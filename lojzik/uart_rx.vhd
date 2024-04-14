@@ -55,7 +55,9 @@ architecture behavioral of UART_RX is
         end process;
 
         -- určení mid bitu
-        MID_BIT <= '1'  when COUNTER_SEVEN_OUT = "111" else '0';
+        -- TODO 
+            -- MID_BIT <= '1'  when COUNTER_SEVEN_OUT = "111" else '0';
+            -- ENABLED <= '1'  when CSO && BIT_WORD else '0'
         
         
         COUNTER_FIFTEEN : process (CLK)
@@ -87,7 +89,7 @@ architecture behavioral of UART_RX is
             end if;
         end process;
     
-        RST <= '0'  when COUNTER_WORD  = "111" else '0';
+        RST <= '1'  when COUNTER_WORD  = "111" else '0'; --RST nastavujeme na 1, slovo konci
 
         DECODER : process(CLK, DIN, RST)
         begin
