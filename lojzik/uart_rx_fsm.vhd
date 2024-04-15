@@ -9,14 +9,16 @@ use ieee.std_logic_unsigned.all;
 
 entity UART_RX_FSM is
     port(
-       CLK : in std_logic;
-       DIN : in std_logic;
-       WORD : in std_logic;
-       BIT_FIN : in std_logic;
-       ENABLED : in std_logic;
-       CLK_EN : out std_logic;
-       BIT : out std_logic;
-       VLD : out std_logic
+        --INPUTS
+        CLK : in std_logic;
+        DIN : in std_logic;
+        WORD : in std_logic;
+        BIT_FIN : in std_logic;
+        ENABLED : in std_logic;
+        --OUTPUTS
+        CLK_EN : out std_logic;
+        DATA_BIT : out std_logic;
+        VLD : out std_logic
     );
 end entity;
 
@@ -24,12 +26,12 @@ end entity;
 
 architecture behavioral of UART_RX_FSM is
 
-    SIGNAL CLK, WORD, BIT_FIN, ENABLED, CLK_EN, BIT, VLD : STD_LOGIC;
+    SIGNAL CLK, WORD, BIT_FIN, ENABLED, CLK_EN, DATA_BIT, VLD : STD_LOGIC;
     type STATE is (S_IDLE, S_BEGIN, S_DATA, S_WAIT ,S_STOP);
     signal NEXT_STATE : STATE;
 begin
 
-    process (CLK) is
+    process (CLK, DIN, WORD, BIT_FIN, ENABLED, CLK_EN, DATA_BIT, VLD) is
     
     begin
 
@@ -46,7 +48,7 @@ begin
             --S_IDLE
             when S_IDLE =>
                 
-                BIT <= '0';
+                DATA_BIT <= '0';
                 VLD <= '0';
 
                 --S_IDLE -> S_BEGIN
@@ -57,32 +59,32 @@ begin
                 end if;
 
 
-                --S_BEGIN
-                when S_BEGIN =>
+            --S_BEGIN
+            when S_BEGIN =>
 
                 --S_BEGIN -> S_DATA
                 if BIT_FIN = '1' then
 
                     NEXT_STATE  <= S_DATA;
-                    BIT <= '1';
+                    DATA_BIT <= '1';
 
                 end if;
 
 
-                --S_DATA
-                when S_DATA =>
+            --S_DATA
+            when S_DATA =>
 
                 --S_DATA -> S_WAIT
                 if BIT_FIN = '1' then
 
                     NEXT_STATE <= S_WAIT;
-                    BIT <= '0';
+                    DATA_BIT <= '0';
 
                 end if;
 
 
-                --S_WAIT
-                when S_WAIT =>
+            --S_WAIT
+            when S_WAIT =>
             
                 --S_WAIT -> S_STOP
                 if BIT_FIN = '1' and WORD = '1' then
@@ -96,7 +98,7 @@ begin
                 if BIT_FIN = '1' then
                     
                     NEXT_STATE <= S_DATA; 
-                    BIT <= '1';
+                    DATA_BIT <= '1';
                     
                 end if;
             
@@ -109,6 +111,7 @@ begin
 
                     NEXT_STATE <= S_IDLE;
                     VLD <= '0';
+                    CLK_EN <= '0';
 
                 end if;
 

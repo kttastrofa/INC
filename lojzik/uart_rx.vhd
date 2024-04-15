@@ -17,6 +17,8 @@ entity UART_RX is
         DOUT_VLD : out std_logic
     );
 end entity;
+        --ENABLED
+        --BIT_FIN
 
 
 
@@ -24,29 +26,30 @@ end entity;
 
 architecture behavioral of UART_RX is
 
-        --signal CLK : std_logic;
-        --signal WORD : std_logic;
+        --INPUTS
         signal BIT_FIN              : std_logic;
         signal ENABLED              : std_logic;
+        --OUTPUTS
         signal CLK_EN               : std_logic;
-        signal BIT                  : std_logic;
+        signal DATA_BIT             : std_logic;
         signal VLD                  : std_logic;
+        --COUNTERS
         signal COUNTER_SEVEN_OUT    : std_logic_vector(2 downto 0);
         signal COUNTER_FIFTEEN_OUT  : std_logic_vector(3 downto 0);
         signal COUNTER_WORD         : std_logic(2 downto 0);
+        --TO COMPARE
         signal TICK_COUNT_SEVEN     : std_logic;
         signal TICK_COUNT_FIFTEEN   : std_logic;
+        --TEMPORARY VARIABLES
         signal MID_BIT              : std_logic;
         signal DECODER_OUT          : std_logic_vector(7 downto 0);
-        --signal VLD_OUT : std_logic;
-        --signal DATA_OUT : std_logic;
     
     begin
     
         COUNTER_SEVEN : process (CLK)
         begin
             if rising_edge(CLK) then
-                if( TICK_COUNT_SEVEN = '1') then
+                if TICK_COUNT_SEVEN = '1' then
                     COUNTER_SEVEN_OUT <= COUNTER_SEVEN_OUT  + 1;
                 else
                     COUNTER_SEVEN_OUT <= "000";
@@ -54,16 +57,15 @@ architecture behavioral of UART_RX is
             end if;
         end process;
 
-        -- určení mid bitu
-        -- TODO 
-            -- MID_BIT <= '1'  when COUNTER_SEVEN_OUT = "111" else '0';
-            -- ENABLED <= '1'  when CSO && BIT_WORD else '0'
+        -- určení mid bitu a kontrola
+        MID_BIT <= '1'  when COUNTER_SEVEN_OUT = "111" else '0';
+        ENABLED <= '1'  when COUNTER_SEVEN_OUT = "111" and DATA_BIT = '1' else '0';
         
         
         COUNTER_FIFTEEN : process (CLK)
         begin
             if rising_edge(CLK) then
-                if(TICK_COUNT_FIFTEEN  = '1') then
+                if TICK_COUNT_FIFTEEN  = '1' then
                     COUNTER_FIFTEEN_OUT <= COUNTER_FIFTEEN_OUT  + 1;
                 else
                     COUNTER_FIFTEEN_OUT <= "0000";
@@ -79,12 +81,8 @@ architecture behavioral of UART_RX is
         COUNTER_W  : process(CLK)
         begin
             if rising_edge(CLK) then
-                if BIT = '1' then
-                    if BIT_FIN = '1' then
-                        COUNTER_WORD <= COUNTER_WORD  + 1;
-                    end if;
-                else
-                    COUNTER_WORD <= "000";
+                if BIT_FIN = '1' then
+                    COUNTER_WORD <= COUNTER_WORD  + 1;
                 end if;
             end if;
         end process;
@@ -93,11 +91,11 @@ architecture behavioral of UART_RX is
 
         DECODER : process(CLK, DIN, RST)
         begin
-            if rising_edge(clk) then
+            if rising_edge(CLK) then
                 if RST = '1' then
                     DECODER_OUT  <= "00000000";
                 else
-                    if (MID_BIT = '1' and BIT = '1') then
+                    if MID_BIT = '1' and DATA_BIT = '1' then
                         case COUNTER_WORD is
                             when "000" => DECODER_OUT (0) <= DIN;
                             when "001" => DECODER_OUT (1) <= DIN;
@@ -114,20 +112,23 @@ architecture behavioral of UART_RX is
             end if;
         end process;
     
-        DOUT_VLD <= '0'  when VLD = '1' and MID_BIT = '1' else '0';
-        DOUT <= DECODER_OUT when VLD = '1' and MID_BIT = '1' else "00000000";
+        DOUT_VLD <= '1'  when VLD = '1' and MID_BIT = '1' and DATA_BIT = '1' else '0';
+        DOUT <= DECODER_OUT when MID_BIT = '1' and DATA_BIT = '1' else "00000000";
     
         -- Instance of RX FSM
         fsm: entity work.UART_RX_FSM
         port map (
+            --INPUTS
             CLK => CLK,
-            RST => WORD,
             DIN => DIN,
+            RST => WORD,
             BIT_FIN => BIT_FIN,
             ENABLED => ENABLED,
-            VLD => VLD,
-            BIT => BIT,
-            CLK_EN =>CLK_EN
+            --OUTPUTS
+            CLK_EN => CLK_EN,
+            DATA_BIT => DATA_BIT,
+            VLD => VLD
+
         );
 
 end architecture;
