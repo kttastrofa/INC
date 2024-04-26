@@ -58,7 +58,7 @@ architecture behavioral of UART_RX is
             end if;
         end process;
 
-        -- určení mid bitu a kontrola
+        -- ur�?ení mid bitu a kontrola
         MID_BIT <= '1'  when COUNTER_SEVEN_OUT = "111" else '0';
         ENABLED <= '1'  when COUNTER_SEVEN_OUT = "111" and DATA_BIT = '1' else '0';
         
@@ -122,7 +122,7 @@ architecture behavioral of UART_RX is
             --INPUTS
             CLK => CLK,
             DIN => DIN,
-            RST => WORD,
+            WORD => RST,
             BIT_FIN => BIT_FIN,
             ENABLED => ENABLED,
             --OUTPUTS

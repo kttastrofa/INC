@@ -17,9 +17,9 @@ entity UART_RX_FSM is
         BIT_FIN : in std_logic;
         ENABLED : in std_logic;
         --OUTPUTS
-        CLK_EN : out std_logic;
-        DATA_BIT : out std_logic;
-        VLD : out std_logic
+        CLK_EN : inout std_logic;
+        DATA_BIT : inout std_logic;
+        VLD : inout std_logic
     );
 end entity;
 

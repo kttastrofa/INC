@@ -1,5 +1,5 @@
 -- uart_rx.vhd: UART controller - receiving (RX) side
--- Author(s): none yet
+-- Author(s): Ondřej Novotný (xnovot2p)
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -17,11 +17,7 @@ entity UART_RX is
         DOUT_VLD : out std_logic
     );
 end entity;
---clk       clk_cnt
---rst       rst
---din       din
---dout      dout
---dout_vld  dout_vldt
+
 
 
 -- Architecture implementation (INSERT YOUR IMPLEMENTATION HERE)

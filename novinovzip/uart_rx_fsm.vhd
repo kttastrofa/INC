@@ -1,10 +1,11 @@
+________________________________________________________________________________________________________________________
 -- uart_rx_fsm.vhd: UART controller - finite state machine controlling RX side
--- Author(s): Ondřej Novotný (xnovot2p)
+-- Author: Katarína Mečiarová ~ xmeciak00
+________________________________________________________________________________________________________________________
 
 library ieee;
-use ieee.std_logic_1164.all;
-use ieee.std_logic_unsigned.all;
-
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 
 entity UART_RX_FSM is
@@ -12,72 +13,93 @@ entity UART_RX_FSM is
        CLK : in std_logic;
        RST : in std_logic;
        DIN : in std_logic;
-       BIT_FIN : in std_logic;
-       WORD_FIN : in std_logic;
-       VALIDITY : out std_logic;
+       MIDBIT : in std_logic;
+       VLDT : out std_logic;
        DATA : out std_logic;
-       CLK_COUNT : out std_logic 
-    );
+       CLK_CNT : out std_logic);
 end entity;
 
+
 architecture behavioral of UART_RX_FSM is
-    type t_state is (S_idle, S_start, S_data, S_stop);
-    signal pstate : t_state;
-    signal nstate : t_state;
+
+    type STATE_T is (S_IDLE, _START, S_DATA, S_STOP);
+
+    signal PREV : t_state;
+    signal NEXT : t_state;
 
 begin
-
-    pstateRegister: process(RST, CLK)
+    PREV: process(RST, CLK)
     begin
+
         if(RST='1') then
-            pstate <= S_idle;
+            PREV <= S_IDLE;
         elsif rising_edge(CLK) then
-            pstate <= nstate;
+            PREV <= NEXT;
         end if;
+
     end process;
     
-    nstate_logic: process(pstate, DIN, BIT_FIN, WORD_FIN)
+    NEXT: process(PREV, DIN, MIDBIT, RST)
     begin
-        case pstate is
-            when S_idle =>
-                nstate <= S_idle;
-                if(DIN='0') then
-                    nstate <= S_start;
+
+        case PREV is
+            when S_IDLE =>
+
+                NEXT <= S_IDLE;
+
+                if DIN='0' then
+                    NEXT <= S_START;
                 end if;
-            when S_start =>
-                nstate <= S_start;
-                if(BIT_FIN='1') then
-                    nstate <= S_data;
+
+            when S_START =>
+
+                NEXT <= S_START;
+                if MIDBIT='1' then
+                    NEXT <= S_DATA;
                 end if;
-            when S_data =>
-                nstate <= S_data;
-                if(BIT_FIN='1' and WORD_FIN='1') then
-                    nstate <= S_stop;
+
+            when S_DATA =>
+
+                NEXT <= S_DATA;
+                if MIDBIT='1' and RST='1' then
+                    NEXT <= S_STOP;
                 end if;
-            when S_stop =>
-                nstate <= S_stop;
-                if(BIT_FIN='1' and DIN='1') then
-                    nstate <= S_idle;
+
+            when S_STOP =>
+
+                NEXT <= S_STOP;
+                if MIDBIT='1' and DIN='1' then
+                    NEXT <= S_IDLE;
                 end if;
-            when others => 
-                nstate <= S_idle;
+
+            when others =>
+                NEXT <= S_IDLE;
         end case;
+
     end process;
 
-    output_logic: process(pstate)
+
+    OUT: process(PREV)
     begin
-        case pstate is
-            when S_idle =>
-                VALIDITY <= '0';
+
+        case PREV is
+
+            when S_IDLE =>
+                VLDT <= '0';
                 DATA <= '0';
-                CLK_COUNT <= '0';
-            when S_start =>
-                CLK_COUNT <= '1';
-            when S_data =>
+                CLK_CNT <= '0';
+
+            when S_START =>
+                CLK_CNT <= '1';
+
+            when S_DATA =>
                 DATA <= '1';
-            when S_stop =>
+
+            when S_STOP =>
                 DATA <= '0';
-                VALIDITY <= '1';
-            end case;
+                VLDT <= '1';
+        end case;
+
     end process;
+
 end architecture;
