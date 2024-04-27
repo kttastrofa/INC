@@ -10,33 +10,36 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity UART_RX_FSM is
     port(
-       CLK : in std_logic;
-       FIN : in std_logic; --as RST in draft
-       DIN : in std_logic;
-       MIDBIT : in std_logic;
-       VLDT : out std_logic;
-       DATA : out std_logic;
-       CLK_CNT : out std_logic);
+--inputs
+       CLK      : in std_logic;
+       FIN      : in std_logic; --as RST in draft ~ scheme
+       DIN      : in std_logic;
+       MIDBIT   : in std_logic;
+--outputs
+       VLDT     : out std_logic;
+       DATA     : out std_logic;
+       CLK_CNT  : out std_logic);
+
 end entity;
 
 
 architecture behavioral of UART_RX_FSM is
-
-    signal OUT : std_logic_vector (2 downto 0);
-    type STATE_T is (S_IDLE, _START, S_DATA, S_STOP);
-    signal ACT : t_state;
-
+--local variables
+    signal  OUT          : std_logic_vector (2 downto 0);
+    type    STATE_T is   (S_IDLE, _START, S_DATA, S_STOP);
+    signal  ACT          : t_state;
+--start the process (fsm resolving)
 begin
     OUT: process(OUT, VLDT, DATA, CLK_CNT)
     begin
-
+--initiate values of the vector variable ~ based on Moore's outputs in the scheme
         OUT[0] =: VLDT;
         OUT[1] =: DATA;
         OUT[2] =: CLK_CNT;
 
     end process;
 
-
+--resolve the states
     ACT: process(ACT, DIN, MIDBIT, FIN, OUT)
     begin
 
@@ -68,17 +71,17 @@ begin
                 if MIDBIT = '1' and DIN = '1' then
                     OUT <= '001';
                 end if;
-
+--default
             when others =>
                 ACT <= S_IDLE;
         end case;
 
     end process;
 
-
+--put the outputs to the right holes :)
     OUTPUT: process(ACT, OUT)
     begin
---SPAWN NA CHYBY
+                                                --SPAWN NA CHYBY
         VLDT <= OUT[0];
         DATA <= OUT[1];
         CLK_CNT <= OUT[2];
