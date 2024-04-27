@@ -19,7 +19,6 @@ entity UART_RX_FSM is
         CLK_EN      : out std_logic;
         DATA_BIT    : out std_logic;
         VLD         : out std_logic;
-        DATA_OUT    : out std_logic
        
     );
 end entity;
@@ -28,7 +27,7 @@ end entity;
 
 architecture behavioral of UART_RX_FSM is
 
-    --SIGNAL CLK, WORD, BIT_FIN, ENABLED, CLK_EN, DATA_BIT, VLD : STD_LOGIC; ASI SMAZAT!!!!!!!
+    --SIGNAL CLK, WORD, BIT_FIN, ENABLED, CLK_EN, DATA_BIT, VLD : STD_LOGIC; ASI SMAZAT!!!!!!! ANO SMAZAT :))
     type STATE is (S_IDLE, S_BEGIN, S_DATA, S_WAIT ,S_STOP);
     signal NEXT_STATE : STATE;
     begin
@@ -38,7 +37,7 @@ architecture behavioral of UART_RX_FSM is
         begin
 
             --CLK_EN
-            
+
 
 
             case NEXT_STATE is
@@ -123,5 +122,3 @@ architecture behavioral of UART_RX_FSM is
             
         end process;
     end architecture;
-
---TODO insert output DATA, *and* it with CNT3
