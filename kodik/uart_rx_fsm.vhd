@@ -11,7 +11,7 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 entity UART_RX_FSM is
     port(
        CLK : in std_logic;
-       FIN : in std_logic;
+       FIN : in std_logic; --as RST in draft
        DIN : in std_logic;
        MIDBIT : in std_logic;
        VLDT : out std_logic;
