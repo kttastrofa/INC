@@ -32,7 +32,7 @@ architecture behavioral of UART_RX_FSM is
     signal NEXT_STATE : STATE;
     begin
 
-        process (CLK, DIN, WORD, BIT_FIN, ENABLED, CLK_EN, DATA_BIT, VLD) is
+        process (CLK, DIN, WORD, BIT_FIN, ENABLED) is
         
         begin
 

@@ -1,7 +1,5 @@
-________________________________________________________________________________________________________________________
 -- uart_rx.vhd: UART controller - receiving (RX) side
--- Author: Katarína Mečiarová ~ xmeciak00
-________________________________________________________________________________________________________________________
+-- Author: Katarína Mečiarová (xmeciak00)
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
@@ -26,7 +24,7 @@ end entity;
 architecture behavioral of UART_RX is
 --local signals ~ variables
     signal MIDBIT           : std_logic;
-    signal FIN              : std_logic; -- ~ RST
+    --signal FIN              : std_logic; -- ~ RST
     signal VLDT             : std_logic;
     signal DATA             : std_logic;
     signal CLK_CNT          : std_logic;
@@ -37,7 +35,7 @@ architecture behavioral of UART_RX is
 
 begin
 --countering based on CLK signal, counting till 15 || 7 ~ based on the what counter is meant
-    CNT_CLK_EN : process (CLK)
+    COUNT_CLK : process (CLK)
     begin
         if rising_edge(CLK) then
 --if CLK signal is '1' then increment the counter, else reset the counter
@@ -56,7 +54,7 @@ begin
     IN_THE_MIDDLE <= '1' when CNT_CLK_EN = "0111" else '0';
 
 --countering based on DATA signal, counting till 3
-    CNT_DATA : process (CLK)
+    COUNT_DATA : process (CLK)
     begin
         if rising_edge(CLK) then
 --if DATA signal is '1' then increment the counter, else reset the counter
@@ -77,7 +75,7 @@ begin
     FIN <= '1' when CNT_DATA = "111" else '0';
 
 --if the counter is equal to 3, then set the VLDT signal to '1', else to '0'
-    DECODER : process (CLK, RST, DIN)
+    DECODERit : process (CLK, RST, DIN)
     begin
         if rising_edge(clk) then
 --if RST signal is '1', then reset the DECODER signal
