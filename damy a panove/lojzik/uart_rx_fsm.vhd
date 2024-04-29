@@ -18,7 +18,7 @@ entity UART_RX_FSM is
         --OUTPUTS
         CLK_EN      : out std_logic;
         DATA_BIT    : out std_logic;
-        VLD         : out std_logic;
+        VLD         : out std_logic
        
     );
 end entity;
@@ -32,7 +32,7 @@ architecture behavioral of UART_RX_FSM is
     signal NEXT_STATE : STATE;
     begin
 
-        process (CLK, DIN, WORD, BIT_FIN, ENABLED) is
+        process (CLK, DIN, WORD, BIT_FIN, ENABLED, CLK_EN, DATA_BIT, VLD) is
         
         begin
 
