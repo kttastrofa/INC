@@ -8,17 +8,17 @@ use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 entity UART_RX_FSM is
     port(
---inputs
+--inputs default
        CLK      : in std_logic;
-       RST      : in std_logic; --as RST in draft ~ scheme
+       RST      : in std_logic;
+--inputs
        DIN      : in std_logic;
        MIDBIT   : in std_logic;
+       FIN      : in std_logic; --as RST in scheme
 --OUTPUTs
        VLDT     : out std_logic;
        DATA     : out std_logic;
-       CLK_CNT  : out std_logic;
-
-       FIN      : out std_logic);
+       CLK_CNT  : out std_logic
 
 end entity;
 
@@ -55,7 +55,7 @@ begin
             when "011" =>
 
                 ACT <= S_DATA;
-                if MIDBIT = '1' and RST = '1' then
+                if MIDBIT = '1' and FIN = '1' then
                     OUTPUT <= "001";
                 end if;
 

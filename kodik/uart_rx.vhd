@@ -24,7 +24,7 @@ end entity;
 architecture behavioral of UART_RX is
 --local signals ~ variables
     signal MIDBIT           : std_logic;
-    --signal FIN              : std_logic; -- ~ RST
+    signal FIN              : std_logic; -- ~ RST
     signal VLDT             : std_logic;
     signal DATA             : std_logic;
     signal CLK_CNT          : std_logic;
