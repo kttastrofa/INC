@@ -19,7 +19,7 @@ entity UART_RX_FSM is
         CLK_EN      : out std_logic;
         DATA_BIT    : out std_logic;
         VLD         : out std_logic
-       
+
     );
 end entity;
 
@@ -117,6 +117,12 @@ architecture behavioral of UART_RX_FSM is
                         CLK_EN <= '0';
 
                     end if;
+
+                when others =>
+                    NEXT_STATE <= S_IDLE;
+                    DATA_BIT <= '0';
+                    VLD <= '0';
+                    CLK_EN <= '0';
 
             end case;
             
