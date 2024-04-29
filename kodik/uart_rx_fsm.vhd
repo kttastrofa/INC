@@ -18,68 +18,64 @@ entity UART_RX_FSM is
 --OUTPUTs
        VLDT     : out std_logic;
        DATA     : out std_logic;
-       CLK_CNT  : out std_logic
+       CLK_CNT  : out std_logic);
 
 end entity;
 
 
 architecture behavioral of UART_RX_FSM is
 --local variables
-    signal  OUTPUT : std_logic_vector (2 downto 0);
-    type    STATE_T is(S_IDLE, S_START, S_DATA, S_STOP);
-    signal  ACT : STATE_T;
+    type STATE_T is (S_IDLE, S_START, S_DATA, S_STOP);
+    signal PRE : STATE_T;
+    signal NEX : STATE_T;
 --start the process (fsm resolving)
 begin
-
-    
-
---resolve the states
-    ACTit: process
+--resolve the states based on previous and next states
+    process(RST, CLK, PRE, DIN, MIDBIT, FIN)
     begin
-
-        case OUTPUT is
-            when "000" =>
-
-                ACT <= S_IDLE;
-                if DIN = '0' then
-                    OUTPUT <= "001";
+        if RST='1' then
+            PRE <= S_IDLE;
+        elsif rising_edge(CLK) then
+            PRE <= NEX;
+        end if;
+--changing states    
+        case PRE is
+            when S_IDLE =>
+                NEX <= S_IDLE;
+                if DIN='0' then
+                    NEX <= S_START;
                 end if;
-
-            when "001" =>
-
-                ACT <= S_START;
-                if MIDBIT = '1' then
-                    OUTPUT <= "001";
+            when S_START =>
+                NEX <= S_START;
+                if MIDBIT='1' then
+                    NEX <= S_DATA;
                 end if;
-
-            when "011" =>
-
-                ACT <= S_DATA;
-                if MIDBIT = '1' and FIN = '1' then
-                    OUTPUT <= "001";
+            when S_DATA =>
+                NEX <= S_DATA;
+                if MIDBIT='1' and FIN='1' then
+                    NEX <= S_STOP;
                 end if;
-
-            when "101" =>
-
-                ACT <= S_STOP;
-                if MIDBIT = '1' and DIN = '1' then
-                    OUTPUT <= "001";
+            when S_STOP =>
+                NEX <= S_STOP;
+                if MIDBIT='1' and DIN='1' then
+                    NEX <= S_IDLE;
                 end if;
---default
-            when others =>
-                ACT <= S_IDLE;
+            when others => 
+                NEX <= S_IDLE;
         end case;
-
+--setting values
+        case PRE is
+            when S_IDLE =>
+                VLDT <= '0';
+                DATA <= '0';
+                CLK_CNT <= '0';
+            when S_START =>
+                CLK_CNT <= '1';
+            when S_DATA =>
+                DATA <= '1';
+            when S_STOP =>
+                DATA <= '0';
+                VLDT <= '1';
+            end case;
     end process;
-
---put the OUTPUTs to the right holes :)
-    OUTit: process
-    begin
-                                                --SPAWN NA CHYBY
-        VLDT <= OUTPUT(0);
-        DATA <= OUTPUT(1);
-        CLK_CNT <= OUTPUT(2);
-
-    end process;
-
 end architecture;
